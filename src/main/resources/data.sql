@@ -19,3 +19,32 @@ Values ('KE56', 1, 'Games', 0.15, 0.15, 40, 40, 40, 40, NULL, NULL);
 
 INSERT INTO Product (ID, VendorID, Name, CostPrice, MSRP, ROP, EOQ, QOH, QOO, QRCode, QRCodeTxt)
 Values ('E890', 1, 'Computer', 0.4, 0.4, 120, 120, 120, 120, NULL, NULL);
+INSERT INTO Product (ID, VendorID, Name, CostPrice, MSRP, ROP, EOQ, QOH, QOO, QRCode, QRCodeTxt)
+VALUES ('P123', 2, 'Office Chair', 50.00, 75.00, 20, 50, 30, 10, NULL, NULL);
+
+INSERT INTO Product (ID, VendorID, Name, CostPrice, MSRP, ROP, EOQ, QOH, QOO, QRCode, QRCodeTxt)
+VALUES ('P124', 2, 'Desk Lamp', 15.00, 25.00, 10, 30, 15, 5, NULL, NULL);
+
+INSERT INTO Product (ID, VendorID, Name, CostPrice, MSRP, ROP, EOQ, QOH, QOO, QRCode, QRCodeTxt)
+VALUES ('P125', 3, 'Wireless Mouse', 10.00, 20.00, 25, 50, 40, 10, NULL, NULL);
+
+INSERT INTO Product (ID, VendorID, Name, CostPrice, MSRP, ROP, EOQ, QOH, QOO, QRCode, QRCodeTxt)
+VALUES ('P126', 3, 'Bluetooth Speaker', 20.00, 35.00, 15, 40, 25, 5, NULL, NULL);
+
+INSERT INTO Product (ID, VendorID, Name, CostPrice, MSRP, ROP, EOQ, QOH, QOO, QRCode, QRCodeTxt)
+VALUES ('P127', 1, 'Notebook', 0.50, 1.00, 100, 200, 150, 50, NULL, NULL);
+
+INSERT INTO Product (ID, VendorID, Name, CostPrice, MSRP, ROP, EOQ, QOH, QOO, QRCode, QRCodeTxt)
+VALUES ('P128', 4, 'Smartphone', 200.00, 300.00, 10, 20, 12, 8, NULL, NULL);
+
+INSERT INTO Product (ID, VendorID, Name, CostPrice, MSRP, ROP, EOQ, QOH, QOO, QRCode, QRCodeTxt)
+VALUES ('P129', 4, 'Tablet', 150.00, 250.00, 5, 15, 7, 3, NULL, NULL);
+
+INSERT INTO Product (ID, VendorID, Name, CostPrice, MSRP, ROP, EOQ, QOH, QOO, QRCode, QRCodeTxt)
+VALUES ('P130', 2, 'Printer', 100.00, 150.00, 10, 25, 15, 5, NULL, NULL);
+
+INSERT INTO Product (ID, VendorID, Name, CostPrice, MSRP, ROP, EOQ, QOH, QOO, QRCode, QRCodeTxt)
+VALUES ('P131', 3, 'Headphones', 25.00, 40.00, 20, 60, 30, 10, NULL, NULL);
+
+INSERT INTO Product (ID, VendorID, Name, CostPrice, MSRP, ROP, EOQ, QOH, QOO, QRCode, QRCodeTxt)
+VALUES ('P132', 4, 'Calculator', 8.00, 15.00, 50, 100, 75, 20, NULL, NULL);

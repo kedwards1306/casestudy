@@ -18,7 +18,7 @@ import com.info5059.casestudy.vendor.Vendor;
 import com.info5059.casestudy.vendor.VendorRepository;
 import com.info5059.casestudy.product.Product;
 import com.info5059.casestudy.product.ProductRepository;
-
+import com.info5059.casestudy.util.QRCodeGenerator;
 import com.itextpdf.io.exceptions.IOException;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.font.PdfFontFactory;
@@ -44,7 +44,8 @@ public abstract class PurchaseOrderPDFGenerator extends AbstractPdfView {
         String popid,
         PurchaseOrderRepository purchaseOrderRepository,
         VendorRepository vendorRepository,
-        ProductRepository productRepository
+        ProductRepository productRepository,
+        QRCodeGenerator qrGenerator
     ) throws IOException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -54,11 +55,16 @@ public abstract class PurchaseOrderPDFGenerator extends AbstractPdfView {
             PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdf = new PdfDocument(writer);
             Document document = new Document(pdf);
-
+            Locale locale = Locale.of("en", "US");
+            NumberFormat numberFormatter = NumberFormat.getCurrencyInstance(locale);
             PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            String poDateCreatedFormatted = "";
+            String poSummary = "";
             URL imageUrl = PurchaseOrderPDFGenerator.class.getResource("/static/images/KELogo.png");
-            Image img = new Image(ImageDataFactory.create(imageUrl)).setHorizontalAlignment(HorizontalAlignment.CENTER);
+            Image img = new Image(ImageDataFactory.create(imageUrl))
+            .scaleToFit(100,100)
+            .setHorizontalAlignment(HorizontalAlignment.CENTER);
             document.add(img);
             document.add(new Paragraph(String.format("Purchase Order #" + popid))
                     .setFont(font).setFontSize(12)
@@ -91,7 +97,7 @@ public abstract class PurchaseOrderPDFGenerator extends AbstractPdfView {
             if (nullablePurchaseOrder.isPresent()) {
 
                 PurchaseOrder po = nullablePurchaseOrder.get();
-                po.getVendorid();
+                poDateCreatedFormatted = dateTimeFormatter.format(po.getPodate());
 
                 Optional<Vendor> nullableVendor = vendorRepository.findById(po.getVendorid());
                 if (nullableVendor.isPresent()) {
@@ -108,7 +114,13 @@ public abstract class PurchaseOrderPDFGenerator extends AbstractPdfView {
                         + vendor.getEmail();
 
                     document.add(new Paragraph(vendorInfo)
-                        .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.CENTER).setBold());
+                            .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.CENTER).setBold());
+                    //Po Summary
+                    poSummary = "Summary for Purchase Order:" + po.getId()
+                    + "\nDate:" + dateTimeFormatter.format(po.getPodate())
+                    + "\nVendor:" + vendor.getName()
+                    + "\nTotal:" + numberFormatter.format(po.getAmount());
+
                 }
 
                 BigDecimal totalProduct = new BigDecimal(0);
@@ -126,8 +138,7 @@ public abstract class PurchaseOrderPDFGenerator extends AbstractPdfView {
                     String productId = "" + product.getId();
                     String productQty = " " + item.getQty();
                     String name = " " + product.getName();
-                    Locale locale = Locale.of("en", "US");
-                    NumberFormat numberFormatter = NumberFormat.getCurrencyInstance(locale);
+
                     String productAmount = numberFormatter.format(product.getCostprice());
                     String productEst= numberFormatter.format(product.getCostprice().multiply(new BigDecimal(item.getQty())));
                     subTotal = subTotal.add(product.getCostprice().multiply(new BigDecimal(item.getQty(), new MathContext(3, RoundingMode.UP))));
@@ -160,10 +171,10 @@ public abstract class PurchaseOrderPDFGenerator extends AbstractPdfView {
             table.addCell(cell);
             cell = new Cell(1, 4).add(new Paragraph("Tax:")
             .setFont(font).setFontSize(12).setBold().setTextAlignment(TextAlignment.RIGHT));
-        table.addCell(cell);
-        cell = new Cell().add(new Paragraph("$" + taxes.toString())
-        .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
-        table.addCell(cell);
+            table.addCell(cell);
+            cell = new Cell().add(new Paragraph("$" + taxes.toString())
+            .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
+            table.addCell(cell);
                 cell = new Cell(1, 4).add(new Paragraph("Total:")
                     .setFont(font).setFontSize(12).setBold().setTextAlignment(TextAlignment.RIGHT));
                 table.addCell(cell);
@@ -178,9 +189,16 @@ public abstract class PurchaseOrderPDFGenerator extends AbstractPdfView {
             document.add(table);
             document.add(new Paragraph("\n"));
 
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            document.add(new Paragraph(dateTimeFormatter.format(LocalDateTime.now()))
-                .setTextAlignment(TextAlignment.CENTER));
+
+            document.add(new Paragraph(poDateCreatedFormatted)
+                    .setTextAlignment(TextAlignment.CENTER));
+
+            // QR Code Summary
+            Image poQRCode = new Image(ImageDataFactory.create(qrGenerator.generateQRCode(poSummary)))
+            .scaleAbsolute(100, 100)
+            .setFixedPosition(460,60);
+            document.add(poQRCode);
+
             document.close();
         }
         catch (Exception ex) {

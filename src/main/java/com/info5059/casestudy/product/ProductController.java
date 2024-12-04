@@ -4,12 +4,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.info5059.casestudy.util.QRCodeGenerator;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
+
 
 @CrossOrigin
 @RestController
 public class ProductController {
 @Autowired
 private ProductRepository productRepository;
+
+@Autowired
+    private QRCodeGenerator qrGenerator;
+
  @GetMapping("/api/products")
     public ResponseEntity<Iterable<Product>> findAll() {
     Iterable<Product> products = productRepository.findAll();
@@ -17,11 +27,13 @@ private ProductRepository productRepository;
     }
     @PutMapping("/api/products")
     public ResponseEntity<Product> updateOne(@RequestBody Product product) {
+        product.setQrcode(qrGenerator.generateQRCode(product.getQrcodetxt()));
         Product updatedProduct = productRepository.save(product);
     return new ResponseEntity<Product>(updatedProduct, HttpStatus.OK);
     }
     @PostMapping("/api/products")
     public ResponseEntity<Product> addOne(@RequestBody Product product) {
+        product.setQrcode(qrGenerator.generateQRCode(product.getQrcodetxt()));
         Product newProduct = productRepository.save(product);
     return new ResponseEntity<Product>(newProduct, HttpStatus.OK);
     }
@@ -37,5 +49,12 @@ private ProductRepository productRepository;
         return new ResponseEntity<Iterable<Product>>(products, HttpStatus.OK);
     }
 
+    @GetMapping("/api/qrcode/{txt}")
+    public ResponseEntity<byte[]> getQRCode(@PathVariable String txt) {
+        byte[] qrcodebin = qrGenerator.generateQRCode(txt);
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+        return new ResponseEntity<byte[]>(qrcodebin, headers, HttpStatus.CREATED);
+    }
 
 }

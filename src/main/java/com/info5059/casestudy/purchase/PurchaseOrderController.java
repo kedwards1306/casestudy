@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import com.info5059.casestudy.product.ProductRepository;
+import com.info5059.casestudy.util.QRCodeGenerator;
 import com.info5059.casestudy.vendor.VendorRepository;
 import org.springframework.http.MediaType;
 
@@ -30,6 +31,8 @@ private PurchaseOrderDAO purchaseOrderDAO;
 @Autowired
 private VendorRepository vendorRepository;
 
+@Autowired
+private QRCodeGenerator qrGenerator;
 
 
 @PostMapping("/api/purchaseorders")
@@ -47,27 +50,31 @@ public ResponseEntity<Iterable<PurchaseOrder>> findAll() {
 }
 
 @GetMapping(value = "/POPDF", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<InputStreamResource> streamPDF(HttpServletRequest request) throws IOException {
-        String popid = request.getParameter("poid");
-        // get formatted pdf as a stream
-        ByteArrayInputStream bis = PurchaseOrderPDFGenerator.generateReport(popid,
-        purchaseOrderRepository,
-        vendorRepository,
-        productRepository);
+public ResponseEntity<InputStreamResource> streamPDF(HttpServletRequest request) throws IOException {
+    String popid = request.getParameter("poid");
+    // System.out.println("popid!!!!!");
+    // System.out.println(request.getParameter("poId"));
+    // popid = "1";
+    // get formatted pdf as a stream
+    ByteArrayInputStream bis = PurchaseOrderPDFGenerator.generateReport(popid,
+            purchaseOrderRepository,
+            vendorRepository,
+            productRepository,
+            qrGenerator);
 
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Disposition", "inline; filename=examplereport.pdf");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "inline; filename=examplereport.pdf");
-
-        // dump stream to browser
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(new InputStreamResource(bis));
-    }
-
-
-
+    // dump stream to browser
+    return ResponseEntity
+            .ok()
+            .headers(headers)
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(new InputStreamResource(bis));
+}
+@GetMapping("/api/purchaseorders/{id}")
+public ResponseEntity<Iterable<PurchaseOrder>> findByEmployee(@PathVariable Long id) {
+return new ResponseEntity<Iterable<PurchaseOrder>>(purchaseOrderRepository.findByVendorid(id), HttpStatus.OK);
+}
 
 }

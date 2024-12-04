@@ -10,7 +10,6 @@ import com.info5059.casestudy.product.Product;
 import com.info5059.casestudy.product.ProductRepository;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 
 import java.math.BigDecimal;
